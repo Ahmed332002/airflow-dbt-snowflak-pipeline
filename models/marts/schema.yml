@@ -1,0 +1,159 @@
+version: 2
+
+models:
+  # =================================================================
+  # اختبارات الأبعاد (DIMENSIONS)
+  # =================================================================
+
+  # 1. اختبارات بُعد التاريخ (dim_date)
+  - name: dim_date
+    description: جدول الأبعاد الزمني القياسي.
+    columns:
+      - name: date_key
+        description: المفتاح البديل للتاريخ (YYYYMMDD).
+        tests:
+          - unique
+          - not_null
+      - name: date
+        description: التاريخ الفعلي.
+        tests:
+          - not_null
+
+  # 2. اختبارات بُعد المنتجات (dim_products)
+  - name: dim_products
+    description: قائمة المنتجات التي تبيعها الشركة.
+    columns:
+      - name: product_key
+        description: المفتاح البديل للمنتج (PK).
+        tests:
+          - unique
+          - not_null
+      - name: is_discontinued
+        description: هل المنتج متوقف (TRUE/FALSE).
+        tests:
+          - accepted_values:
+              values: [true, false]
+
+  # 3. اختبارات بُعد العملاء (dim_customers)
+  - name: dim_customers
+    description: الأبعاد القياسية للعملاء.
+    columns:
+      - name: customer_key
+        description: المفتاح البديل للعميل (PK).
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: المفتاح الطبيعي للعميل.
+        tests:
+          - not_null
+          - unique 
+
+  # 4. اختبارات بُعد الموظفين (dim_employees)
+  - name: dim_employees
+    description: الأبعاد القياسية للموظفين.
+    columns:
+      - name: employee_key
+        description: المفتاح البديل للموظف (PK).
+        tests:
+          - unique
+          - not_null
+      - name: job_title
+        description: المسمى الوظيفي.
+        tests:
+          - accepted_values:
+              values: ["Sales Representative", "Vice President, Sales", "Sales Manager", "Inside Sales Coordinator"]
+
+  # 5. اختبارات بُعد شركات الشحن (dim_shippers)
+  - name: dim_shippers
+    description: بُعد شركات الشحن الناقلة.
+    columns:
+      - name: shipper_key
+        description: المفتاح البديل لشركة الشحن (PK).
+        tests:
+          - unique
+          - not_null
+      - name: shipper_company_name
+        description: اسم شركة الشحن.
+        tests:
+          - not_null
+          - unique 
+
+  # 6. اختبارات بُعد المناطق الرئيسية (dim_regions)
+  - name: dim_regions
+    description: المناطق الجغرافية الرئيسية.
+    columns:
+      - name: region_key
+        description: المفتاح البديل للمنطقة الرئيسية (PK).
+        tests:
+          - unique
+          - not_null
+      - name: region_description
+        description: وصف المنطقة.
+        tests:
+          - not_null
+          - unique 
+          
+  # 7. اختبارات بُعد المناطق الفرعية (dim_territories)
+  - name: dim_territories
+    description: المناطق الجغرافية الفرعية للموظفين.
+    columns:
+      - name: territory_key
+        description: المفتاح البديل للمنطقة الفرعية (PK).
+        tests:
+          - unique
+          - not_null
+      - name: region_key
+        description: المفتاح الأجنبي الذي يربط بالمنطقة الرئيسية.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_regions')
+              field: region_key
+
+  # =================================================================
+  # اختبارات الحقائق (FACTS)
+  # =================================================================
+  
+  # 8. اختبارات حقائق المبيعات (fct_sales)
+  - name: fct_sales
+    description: حقائق المبيعات على مستوى سطر الطلب.
+    columns:
+      - name: order_line_key
+        description: المفتاح الفريد لسطر الطلب (PK).
+        tests:
+          - unique
+          - not_null
+      
+      # تكامل المرجعية (Foreign Keys) - الأهم
+      - name: customer_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_key
+              severity: warn
+      - name: product_key
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_products')
+              field: product_key
+      
+      
+  # 9. اختبارات حقائق تفاعل العملاء (fct_customer_interaction)
+  - name: fct_customer_interaction
+    description: مقاييس مجمعة لملف العميل.
+    columns:
+      - name: customer_key
+        description: المفتاح الأساسي في جدول التراكم (PK).
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_key
+      - name: total_orders_count
+        description: إجمالي عدد الطلبات.
+        tests:
+          - not_null

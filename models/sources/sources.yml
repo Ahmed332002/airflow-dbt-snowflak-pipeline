@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+  - name: raw
+    database: dbt_db
+    schema: raw
+    tables:
+      - name: customers
+      - name: categories
+      - name: employees
+      - name: employee_territory
+      - name: order_details
+      - name: orders
+      - name: products
+      - name: region
+      - name: shippers
+      - name: suppliers
+      - name: territories
