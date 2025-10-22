@@ -2,109 +2,109 @@ version: 2
 
 models:
   # =================================================================
-  # اختبارات الأبعاد (DIMENSIONS)
+  # (DIMENSIONS Tests)
   # =================================================================
 
-  # 1. اختبارات بُعد التاريخ (dim_date)
+  # 1. (dim_date)
   - name: dim_date
-    description: جدول الأبعاد الزمني القياسي.
+    description: Standard time dimension table.
     columns:
       - name: date_key
-        description: المفتاح البديل للتاريخ (YYYYMMDD).
+        description: Surrogate key for date (YYYYMMDD).
         tests:
           - unique
           - not_null
       - name: date
-        description: التاريخ الفعلي.
+        description: Actual calendar date.
         tests:
           - not_null
 
-  # 2. اختبارات بُعد المنتجات (dim_products)
+  # 2. (dim_products)
   - name: dim_products
-    description: قائمة المنتجات التي تبيعها الشركة.
+    description: List of products sold by the company.
     columns:
       - name: product_key
-        description: المفتاح البديل للمنتج (PK).
+        description: Surrogate key for product (PK).
         tests:
           - unique
           - not_null
       - name: is_discontinued
-        description: هل المنتج متوقف (TRUE/FALSE).
+        description: Whether the product is discontinued (TRUE/FALSE).
         tests:
           - accepted_values:
               values: [true, false]
 
-  # 3. اختبارات بُعد العملاء (dim_customers)
+  # 3. (dim_customers)
   - name: dim_customers
-    description: الأبعاد القياسية للعملاء.
+    description: Standard customer dimension table.
     columns:
       - name: customer_key
-        description: المفتاح البديل للعميل (PK).
+        description: Surrogate key for customer (PK).
         tests:
           - unique
           - not_null
       - name: customer_id
-        description: المفتاح الطبيعي للعميل.
+        description: Natural key for customer.
         tests:
           - not_null
           - unique 
 
-  # 4. اختبارات بُعد الموظفين (dim_employees)
+  # 4. (dim_employees)
   - name: dim_employees
-    description: الأبعاد القياسية للموظفين.
+    description: Standard employee dimension table.
     columns:
       - name: employee_key
-        description: المفتاح البديل للموظف (PK).
+        description: Surrogate key for employee (PK).
         tests:
           - unique
           - not_null
       - name: job_title
-        description: المسمى الوظيفي.
+        description: Employee job title.
         tests:
           - accepted_values:
               values: ["Sales Representative", "Vice President, Sales", "Sales Manager", "Inside Sales Coordinator"]
 
-  # 5. اختبارات بُعد شركات الشحن (dim_shippers)
+  # 5. (dim_shippers)
   - name: dim_shippers
-    description: بُعد شركات الشحن الناقلة.
+    description: Shipping companies dimension.
     columns:
       - name: shipper_key
-        description: المفتاح البديل لشركة الشحن (PK).
+        description: Surrogate key for shipping company (PK).
         tests:
           - unique
           - not_null
       - name: shipper_company_name
-        description: اسم شركة الشحن.
+        description: Shipping company name.
         tests:
           - not_null
           - unique 
 
-  # 6. اختبارات بُعد المناطق الرئيسية (dim_regions)
+  # 6. (dim_regions)
   - name: dim_regions
-    description: المناطق الجغرافية الرئيسية.
+    description: Main geographic regions.
     columns:
       - name: region_key
-        description: المفتاح البديل للمنطقة الرئيسية (PK).
+        description: Surrogate key for main region (PK).
         tests:
           - unique
           - not_null
       - name: region_description
-        description: وصف المنطقة.
+        description: Description of the region.
         tests:
           - not_null
           - unique 
           
-  # 7. اختبارات بُعد المناطق الفرعية (dim_territories)
+  # 7. (dim_territories)
   - name: dim_territories
-    description: المناطق الجغرافية الفرعية للموظفين.
+    description: Sub-geographic territories assigned to employees.
     columns:
       - name: territory_key
-        description: المفتاح البديل للمنطقة الفرعية (PK).
+        description: Surrogate key for sub-region (PK).
         tests:
           - unique
           - not_null
       - name: region_key
-        description: المفتاح الأجنبي الذي يربط بالمنطقة الرئيسية.
+        description: Foreign key linking to the main region.
         tests:
           - not_null
           - relationships:
@@ -112,20 +112,20 @@ models:
               field: region_key
 
   # =================================================================
-  # اختبارات الحقائق (FACTS)
+  # (FACTS Tests)
   # =================================================================
   
-  # 8. اختبارات حقائق المبيعات (fct_sales)
+  # 8. (fct_sales)
   - name: fct_sales
-    description: حقائق المبيعات على مستوى سطر الطلب.
+    description: Sales facts at the order line level.
     columns:
       - name: order_line_key
-        description: المفتاح الفريد لسطر الطلب (PK).
+        description: Unique key for the order line (PK).
         tests:
           - unique
           - not_null
       
-      # تكامل المرجعية (Foreign Keys) - الأهم
+      # (Foreign Keys) 
       - name: customer_key
         tests:
           - not_null
@@ -140,13 +140,12 @@ models:
               to: ref('dim_products')
               field: product_key
       
-      
-  # 9. اختبارات حقائق تفاعل العملاء (fct_customer_interaction)
+  # 9. (fct_customer_interaction)
   - name: fct_customer_interaction
-    description: مقاييس مجمعة لملف العميل.
+    description: Aggregated metrics for the customer file.
     columns:
       - name: customer_key
-        description: المفتاح الأساسي في جدول التراكم (PK).
+        description: The primary key (PK) in the fact table.
         tests:
           - unique
           - not_null
@@ -154,6 +153,6 @@ models:
               to: ref('dim_customers')
               field: customer_key
       - name: total_orders_count
-        description: إجمالي عدد الطلبات.
+        description: Total number of orders.
         tests:
           - not_null

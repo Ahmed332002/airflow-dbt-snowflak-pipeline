@@ -10,13 +10,13 @@ WITH source_data AS (
 cleaned_data AS (
     SELECT
         CategoryID,
-        -- لو الاسم فاضي، نحط 'Unknown'
+        
         CASE 
             WHEN CategoryName IS NULL OR CategoryName = '' THEN 'Unknown'
             ELSE CategoryName
         END AS CategoryName,
         
-        -- لو الوصف فاضي، نحط 'No description'
+        
         CASE 
             WHEN Description IS NULL OR Description = '' THEN 'No description'
             ELSE Description

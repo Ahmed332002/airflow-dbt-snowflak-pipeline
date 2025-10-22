@@ -1,7 +1,6 @@
--- models/dimensions/dim_customers.sql
 
 WITH stg_customers AS (
-    -- الخطوة 1: جلب البيانات النظيفة والمُنقاة من نموذج Staging
+   
     SELECT
         *
     FROM {{ ref('stg_customers') }}
@@ -12,7 +11,7 @@ final AS (
         -- (Surrogate Key)
         MD5(customer_id) AS customer_key,
         
-        -- Row Hash (يُستخدم لتحديد ما إذا كانت سجلات العميل قد تغيرت، لـ SCD Type 2)
+        -- Row Hash 
         MD5(
             CONCAT(
                 customer_id, '||',
